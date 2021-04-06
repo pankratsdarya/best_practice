@@ -9,7 +9,7 @@ import (
 )
 
 // парсим страницу
-func parse(url string, ctxt context.Context) (*html.Node, error) {
+func parse(ctxt context.Context, url string) (*html.Node, error) {
 	select {
 	case <-ctxt.Done():
 		return nil, fmt.Errorf("time's up")
@@ -29,7 +29,7 @@ func parse(url string, ctxt context.Context) (*html.Node, error) {
 }
 
 // ищем заголовок на странице
-func pageTitle(n *html.Node, ctxt context.Context) string {
+func pageTitle(ctxt context.Context, n *html.Node) string {
 	select {
 	case <-ctxt.Done():
 		return ""
@@ -40,7 +40,7 @@ func pageTitle(n *html.Node, ctxt context.Context) string {
 			return n.FirstChild.Data
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			title = pageTitle(c, ctxt)
+			title = pageTitle(ctxt, c)
 			if title != "" {
 				break
 			}
@@ -50,7 +50,7 @@ func pageTitle(n *html.Node, ctxt context.Context) string {
 }
 
 // ищем все ссылки на страницы. Используем мапку чтобы избежать дубликатов
-func pageLinks(links map[string]struct{}, n *html.Node, ctxt context.Context) map[string]struct{} {
+func pageLinks(ctxt context.Context, links map[string]struct{}, n *html.Node) map[string]struct{} {
 	select {
 	case <-ctxt.Done():
 		return nil
@@ -73,7 +73,7 @@ func pageLinks(links map[string]struct{}, n *html.Node, ctxt context.Context) ma
 			}
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			links = pageLinks(links, c, ctxt)
+			links = pageLinks(ctxt, links, c)
 		}
 		return links
 	}
