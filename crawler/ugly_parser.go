@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"golang.org/x/net/html"
 )
@@ -16,7 +17,11 @@ func parse(ctxt context.Context, url string) (*html.Node, error) {
 
 	default:
 		// что здесь должно быть вместо http.Get? :)
-		r, err := http.Get(url)
+		var netClient = &http.Client{
+			Timeout: time.Second * 4,
+		}
+		r, err := netClient.Get(url)
+
 		if err != nil {
 			return nil, fmt.Errorf("can't get page")
 		}
