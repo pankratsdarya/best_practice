@@ -26,7 +26,7 @@ type filesStruct struct {
 
 func init() {
 	delDuplicates = flag.Bool("delDuplicates", false, "Delete duplicates? false=No  true=Yes")
-	dirPath = flag.String("dirPath", "D:\\", "Path to directory for inspection. Program is configured to work on OS Windows.")
+	dirPath = flag.String("dirPath", "F:\\test", "Path to directory for inspection. Program is configured to work on OS Windows.")
 	flag.Parse()
 }
 
@@ -109,39 +109,43 @@ func checkFiles(num int) {
 			fmt.Println(". ", allFiles[copiesNumber[j]].fileEntry.Name(), "    ", allFiles[copiesNumber[j]].filePath)
 		}
 		if *delDuplicates {
-			countDelete := 1
-			var numberDelete int
-			if len(copiesNumber) > 1 {
-				fmt.Println("Enter count of files to delete. Enter 0 to save all files.")
-				_, err := fmt.Scanln(&countDelete)
-				if err != nil || countDelete > len(copiesNumber) {
-					fmt.Println("Wrong count. Files not deleted")
-					hlog.Warn("Wrong count entered for ", allFiles[num].fileEntry.Name(), " files. Files not deleted")
-					return
-				}
-			}
+			deleteDuplicates(copiesNumber, num)
+		}
+	}
+}
 
-			for k := 0; k < countDelete; k++ {
-				fmt.Println("Enter number of file to delete. Enter 0 to save all files.")
-				_, err := fmt.Scanln(&numberDelete)
-				if err != nil || countDelete < numberDelete {
-					fmt.Println("Wrong number. Files not deleted")
-					hlog.Warn("Wrong number entered for ", allFiles[num].fileEntry.Name(), " files. Files not deleted")
-					return
-				}
-				if numberDelete == 0 {
-					return
-				}
-				os.Chdir(allFiles[copiesNumber[numberDelete-2]].filePath)
-				err = os.Remove(allFiles[copiesNumber[numberDelete-2]].fileEntry.Name())
-				if err != nil {
-					fmt.Println("File not deleted. Error occured.")
-					hlog.WithFields(log.Fields{"file": strings.Join([]string{allFiles[copiesNumber[numberDelete-2]].filePath, allFiles[copiesNumber[numberDelete-2]].fileEntry.Name()}, "\\")}).Error("Can't delete file")
-				} else {
-					fmt.Println("File deleted.")
-					hlog.WithFields(log.Fields{"file": strings.Join([]string{allFiles[copiesNumber[numberDelete-2]].filePath, allFiles[copiesNumber[numberDelete-2]].fileEntry.Name()}, "\\")}).Info("File deleted")
-				}
-			}
+func deleteDuplicates(copNum []int, number int) {
+	countDelete := 1
+	var numberDelete int
+	if len(copNum) > 1 {
+		fmt.Println("Enter count of files to delete. Enter 0 to save all files.")
+		_, err := fmt.Scanln(&countDelete)
+		if err != nil || countDelete > len(copNum) {
+			fmt.Println("Wrong count. Files not deleted")
+			hlog.Warn("Wrong count entered for ", allFiles[number].fileEntry.Name(), " files. Files not deleted")
+			return
+		}
+	}
+
+	for k := 0; k < countDelete; k++ {
+		fmt.Println("Enter number of file to delete. Enter 0 to save all files.")
+		_, err := fmt.Scanln(&numberDelete)
+		if err != nil || countDelete < numberDelete {
+			fmt.Println("Wrong number. Files not deleted")
+			hlog.Warn("Wrong number entered for ", allFiles[number].fileEntry.Name(), " files. Files not deleted")
+			return
+		}
+		if numberDelete == 0 {
+			return
+		}
+		os.Chdir(allFiles[copNum[numberDelete-2]].filePath)
+		err = os.Remove(allFiles[copNum[numberDelete-2]].fileEntry.Name())
+		if err != nil {
+			fmt.Println("File not deleted. Error occured.")
+			hlog.WithFields(log.Fields{"file": strings.Join([]string{allFiles[copNum[numberDelete-2]].filePath, allFiles[copNum[numberDelete-2]].fileEntry.Name()}, "\\")}).Error("Can't delete file")
+		} else {
+			fmt.Println("File deleted.")
+			hlog.WithFields(log.Fields{"file": strings.Join([]string{allFiles[copNum[numberDelete-2]].filePath, allFiles[copNum[numberDelete-2]].fileEntry.Name()}, "\\")}).Info("File deleted")
 		}
 	}
 }
