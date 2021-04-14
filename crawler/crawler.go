@@ -16,6 +16,7 @@ type crawlResult struct {
 
 type crawler struct {
 	sync.Mutex
+	deep     sync.Mutex
 	visited  map[string]string
 	maxDepth int
 }
@@ -41,8 +42,11 @@ func (c *crawler) run(ctx context.Context, url string, results chan<- crawlResul
 		return
 
 	default:
+		c.deep.Lock()
+		d := c.maxDepth
+		c.deep.Unlock()
 		// проверка глубины
-		if depth >= c.maxDepth {
+		if d >= c.maxDepth {
 			return
 		}
 

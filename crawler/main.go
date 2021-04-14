@@ -92,9 +92,9 @@ func watchDepth(craw *crawler) {
 	log.Printf("got signal %q", sig.String())
 
 	// если сигнал получен, увеличиваем maxDepth
-	craw.Lock()
+	craw.deep.Lock()
 	craw.maxDepth += 10
-	craw.Unlock()
+	craw.deep.Unlock()
 }
 
 func watchCrawler(ctx context.Context, results <-chan crawlResult, maxErrors, maxResults int) chan struct{} {
