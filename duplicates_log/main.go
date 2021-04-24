@@ -39,8 +39,8 @@ func (fs *FSImpl) Remove(input string) error {
 	return os.Remove(input)
 }
 
-func (fs *FSImpl) Chdir(input string) {
-	os.Chdir(input)
+func (fs *FSImpl) Chdir(input string) error {
+	return os.Chdir(input)
 }
 
 func (fs *FSImpl) ReadDir(input string) ([]fs.DirEntry, error) {
@@ -194,7 +194,12 @@ func deleteDuplicates(copNum []int, number int) {
 		if numberDelete == 0 {
 			return
 		}
-		myfs.Chdir(allFiles[copNum[numberDelete-2]].filePath)
+		err = myfs.Chdir(allFiles[copNum[numberDelete-2]].filePath)
+		if err != nil {
+			fmt.Println("Error changing directory.")
+			hlog.WithFields(log.Fields{"file": strings.Join([]string{allFiles[copNum[numberDelete-2]].filePath, allFiles[copNum[numberDelete-2]].fileName}, "\\")}).Error("Error changing directory.")
+			return
+		}
 		err = myfs.Remove(allFiles[copNum[numberDelete-2]].fileName)
 		if err != nil {
 			fmt.Println("File not deleted. Error occured.")
